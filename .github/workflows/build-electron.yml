@@ -19,14 +19,54 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
+        cache: 'npm'
+
+    - name: Print Environment Info
+      run: |
+        echo "Node version: $(node -v)"
+        echo "NPM version: $(npm -v)"
+        dir
 
     - name: Install Dependencies
-      run: npm install
+      run: |
+        npm install --no-audit --no-fund
+      env:
+        ELECTRON_SKIP_BINARY_DOWNLOAD: 1
 
-    - name: Build Electron App
-      run: npm run build:win
+    - name: Install Windows Build Tools
+      run: |
+        npm install -g windows-build-tools@4.0.0 --vs2015 || echo "Windows build tools installation may have shown warnings (this is normal in CI)"
+      continue-on-error: true
+
+    - name: Display Package.json Content
+      run: |
+        echo "Package.json:"
+        type package.json
+      shell: cmd
+
+    - name: Create Testing Icon
+      run: |
+        echo "Making sure icon files exist and are valid..."
+        mkdir -p assets
+        copy icon.ico assets\icon.ico
+        copy icon.ico assets\icon.png
+      shell: cmd
+      continue-on-error: true
+
+    - name: Build Electron App with Debug
+      run: |
+        set DEBUG=electron-builder
+        npm run build:win
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEBUG: electron-builder
+
+    - name: List Output Files
+      run: |
+        echo "Files in dist directory:"
+        dir dist
+      shell: cmd
+      continue-on-error: true
 
     - name: Upload Windows Executable
       uses: actions/upload-artifact@v4
@@ -37,6 +77,7 @@ jobs:
           dist/*.msi
           dist/*.zip
         retention-days: 30
+        if-no-files-found: warn
 
     - name: Upload Installer
       uses: actions/upload-artifact@v4
@@ -46,7 +87,7 @@ jobs:
           dist/*Setup*.exe
           dist/*setup*.exe
         retention-days: 30
-        if-no-files-found: ignore
+        if-no-files-found: warn
 
   release:
     needs: build
@@ -63,6 +104,11 @@ jobs:
         name: student-management-system-windows
         path: ./artifacts
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
     - name: Get Package Version
       id: package-version
       run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
@@ -112,4 +158,4 @@ jobs:
           fi
         done
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }
