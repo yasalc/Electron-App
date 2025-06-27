@@ -1,0 +1,163 @@
+name: Build Electron App with Recording Detection
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Print Environment Info
+      run: |
+        echo "Node version: $(node -v)"
+        echo "NPM version: $(npm -v)"
+        dir
+
+    - name: Use Modified Configuration
+      run: |
+        copy package-modified.json package.json
+        copy main-modified.js main.js
+        copy preload-modified.js preload.js
+        echo "Using modified configuration with fallback recording detection"
+      shell: cmd
+
+    - name: Install Dependencies
+      run: |
+        npm install --no-audit --no-fund --verbose
+      env:
+        ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+
+    - name: Install Windows Build Tools
+      run: |
+        npm install --global --production windows-build-tools || echo "Windows build tools already installed or not needed"
+      shell: cmd
+      continue-on-error: true
+
+    - name: Verify Icon Files
+      run: |
+        echo "Checking icon files..."
+        if not exist "assets" mkdir assets
+        if not exist "assets\icon.ico" copy icon.ico assets\icon.ico
+        if not exist "assets\icon.png" copy icon.ico assets\icon.png
+        dir assets
+      shell: cmd
+
+    - name: Build Electron App
+      run: |
+        npm run build:win -- --publish=never
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEBUG: electron-builder
+
+    - name: List Output Files
+      run: |
+        echo "Files in dist directory:"
+        dir dist || echo "No dist directory found"
+      shell: cmd
+      continue-on-error: true
+
+    - name: Upload Windows Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: student-management-system-windows
+        path: |
+          dist/*.exe
+          dist/*.msi
+          dist/*.zip
+        retention-days: 30
+        if-no-files-found: warn
+
+    - name: Upload Installer
+      uses: actions/upload-artifact@v4
+      with:
+        name: student-management-system-installer
+        path: |
+          dist/*Setup*.exe
+          dist/*setup*.exe
+        retention-days: 30
+        if-no-files-found: warn
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: Download Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: student-management-system-windows
+        path: ./artifacts
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Get Package Version
+      id: package-version
+      run: echo "version=$(node -p "require('./package-modified.json').version")" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.package-version.outputs.version }}-${{ github.run_number }}
+        release_name: Student Management System v${{ steps.package-version.outputs.version }}
+        body: |
+          ## Student Management System - Desktop Application
+          
+          ### Features
+          - 🔒 Screen Recording Detection
+          - 👨‍🎓 Student Portal with Supabase Integration
+          - 🔐 Admin Portal
+          - 📱 Responsive Design
+          - 🛡️ Security Event Logging
+          
+          ### Installation
+          1. Download the `.exe` file below
+          2. Run as Administrator (required for screen detection)
+          3. Follow the installation wizard
+          
+          ### System Requirements
+          - Windows 10 or later
+          - Internet connection for Supabase integration
+          
+          ### Security Note
+          This application requires administrator privileges to detect screen recording software for content protection.
+          
+          ---
+          **Built on:** ${{ github.event.head_commit.timestamp }}
+          **Commit:** ${{ github.sha }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Assets
+      run: |
+        for file in ./artifacts/*; do
+          if [ -f "$file" ]; then
+            echo "Uploading $file"
+            gh release upload v${{ steps.package-version.outputs.version }}-${{ github.run_number }} "$file"
+          fi
+        done
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
