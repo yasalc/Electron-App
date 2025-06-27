@@ -21,10 +21,14 @@ jobs:
         node-version: '18'
 
     - name: Install Dependencies
-      run: npm install
+      run: |
+        cd "Electron App"
+        npm install
 
     - name: Build Electron App
-      run: npm run build:win
+      run: |
+        cd "Electron App"
+        npm run build:win
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -33,9 +37,9 @@ jobs:
       with:
         name: student-management-system-windows
         path: |
-          dist/*.exe
-          dist/*.msi
-          dist/*.zip
+          Electron App/dist/*.exe
+          Electron App/dist/*.msi
+          Electron App/dist/*.zip
         retention-days: 30
 
     - name: Upload Installer
@@ -43,8 +47,8 @@ jobs:
       with:
         name: student-management-system-installer
         path: |
-          dist/*Setup*.exe
-          dist/*setup*.exe
+          Electron App/dist/*Setup*.exe
+          Electron App/dist/*setup*.exe
         retention-days: 30
         if-no-files-found: ignore
 
@@ -65,7 +69,7 @@ jobs:
 
     - name: Get Package Version
       id: package-version
-      run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+      run: echo "version=$(node -p "require('./Electron App/package.json').version")" >> $GITHUB_OUTPUT
 
     - name: Create Release
       id: create_release
@@ -80,7 +84,7 @@ jobs:
           
           ### Features
           - 🔒 Screen Recording Detection
-          - 👨‍🏫 Student Portal with Supabase Integration
+          - 👨‍🎓 Student Portal with Supabase Integration
           - 🔐 Admin Portal
           - 📱 Responsive Design
           - 🛡️ Security Event Logging
