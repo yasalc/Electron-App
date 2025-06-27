@@ -1,0 +1,41 @@
+Creating a professional Windows icon file for Student Management System - Attorney's At Law Classes
+
+This icon.ico file combines legal and educational themes:
+- Scales of Justice (representing law)
+- Graduation Cap (representing education)
+- Professional color scheme (black, gold, white)
+- Multiple sizes: 16x16, 32x32, 48x48, 256x256
+
+The icon represents the dual nature of your application:
+1. Legal education and training
+2. Student management system
+3. Professional law practice
+
+File: icon.ico
+Purpose: Windows application icon for Electron build
+Location: assets/icon.ico
+Usage: Referenced in package.json for Electron Builder
+
+This file should be uploaded to your GitHub repository at:
+assets/icon.ico
+
+Note: This is a placeholder description. For an actual .ico file, you would need:
+1. A proper ICO file format with multiple resolutions
+2. Binary data containing the icon images
+3. Windows-compatible format for Electron builds
+
+For now, please:
+1. Download a professional law/education icon from an icon generator
+2. Convert it to .ico format using online tools
+3. Upload to assets/icon.ico in your GitHub repository
+
+Recommended online ICO generators:
+- favicon.io
+- convertio.co
+- icoconvert.com
+
+The icon should be:
+- Professional appearance
+- Clear at small sizes (16x16, 32x32)
+- Represents law + education
+- Windows .ico format
