@@ -1,0 +1,60 @@
+{
+  "name": "student-management-system",
+  "version": "1.0.0",
+  "description": "Student Management System with Screen Recording Detection",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:all": "electron-builder --win --x64",
+    "pack": "electron-builder --dir",
+    "dist": "npm run build"
+  },
+  "build": {
+    "appId": "com.yasaralawclasses.studentmanagement",
+    "productName": "Student Management System",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/",
+      "node_modules/"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "keywords": [
+    "student-management",
+    "education",
+    "desktop-app"
+  ],
+  "author": "Attorney's At Law Classes - Netaji Yasara Silva",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "ps-node": "^0.1.6",
+    "node-process-list": "^1.0.2",
+    "electron-store": "^8.1.0",
+    "axios": "^1.6.0"
+  }
+}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="version" content="v2.8.5-20250626-ELECTRON">
+    <title>Portal Selector - Attorney's At Law Classes - Netaji Yasara Silva</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+
+        .portal-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .portal-card {
+            flex: 1;
+            min-width: 220px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #333;
+            border: 2px solid transparent;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .portal-card h3 {
+            margin: 15px 0;
+            color: #333;
+        }
+
+        .portal-card p {
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            .portal-options {
+                flex-direction: column;
+            }
+            
+            .portal-card {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to</h1>
+        <h2>Attorney's At Law Classes - Netaji Yasara Silva</h2>
+        <p>Please select your portal to continue</p>
+        
+        <div class="portal-options">
+            <a href="0cj1zfmo29.html" class="portal-card">
+                <div class="icon">👨‍🎓</div>
+                <h3>Student Portal</h3>
+                <p>For students to register, login, and access class materials</p>
+            </a>
+            
+            <a href="47gwy2ga4a.html" class="portal-card">
+                <div class="icon">🔐</div>
+                <h3>Admin Portal</h3>
+                <p>For administrators to manage students and system</p>
+            </a>
+        </div>
+        
+        <footer>
+            &copy; 2025 Attorney's At Law Classes - Netaji Yasara Silva. All rights reserved.
+            <br><small style="color: #999; font-size: 10px;">Version: v2.8.5-20250626-ELECTRON</small>
+            <br><small id="detection-status" style="color: #28a745; font-size: 10px;">🔒 Screen Recording Detection: Active</small>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize recording detection status display
+        document.addEventListener('DOMContentLoaded', async () => {
+            const statusElement = document.getElementById('detection-status');
+            
+            if (window.electronAPI) {
+                try {
+                    const isActive = await window.electronAPI.getDetectionStatus();
+                    statusElement.textContent = isActive ? 
+                        '🔒 Screen Recording Detection: Active' : 
+                        '⚠️ Screen Recording Detection: Inactive';
+                    statusElement.style.color = isActive ? '#28a745' : '#dc3545';
+                } catch (error) {
+                    console.log('Detection status check failed:', error);
+                    statusElement.textContent = '⚠️ Screen Recording Detection: Error';
+                    statusElement.style.color = '#ffc107';
+                }
+            } else {
+                statusElement.textContent = '🌐 Running in Web Mode';
+                statusElement.style.color = '#6c757d';
+            }
+        });
+    </script>
+</body>
+</html>

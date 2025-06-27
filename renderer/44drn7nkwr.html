@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - Attorney's At Law Classes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reset-container {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .logo .subtitle {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #333333 0%, #555555 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #555555 0%, #777777 100%);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .back-link {
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="reset-container">
+        <div class="logo">
+            <h1>Reset Password</h1>
+            <div class="subtitle">Attorney's At Law Classes - Netaji Yasara Silva</div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState">
+            <div class="loading">Verifying reset link...</div>
+        </div>
+
+        <!-- Reset Form -->
+        <form id="resetPasswordForm" style="display: none;">
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" required placeholder="Enter your new password" minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" required placeholder="Confirm your new password" minlength="6">
+            </div>
+
+            <button type="submit" class="btn">Update Password</button>
+
+            <div id="messageContainer"></div>
+        </form>
+
+        <!-- Error State -->
+        <div id="errorState" style="display: none;">
+            <div class="message error">
+                <strong>Invalid or Expired Link</strong><br>
+                This password reset link is invalid or has expired. Please request a new password reset.
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div id="successState" style="display: none;">
+            <div class="message success">
+                <strong>Password Updated Successfully!</strong><br>
+                Your password has been changed. You can now log in with your new password.
+            </div>
+        </div>
+
+        <!-- Back Links -->
+        <div class="back-link">
+            <a href="index.html" id="backToPortalLink">← Back to Portal Selection</a>
+        </div>
+    </div>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://lfszceyrzwsyxlvubrcc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxmc3pjZXlyendzeXhsdnVicmNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5Nzg4OTUsImV4cCI6MjA2NTU1NDg5NX0.h2EHHl3bXwRxTbRlYrGkXFN8v5xlmf4u-2IuigmfSWc';
+        
+        // Initialize Supabase client
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase client initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize Supabase client:', error);
+            showError('Failed to initialize reset system. Please try again later.');
+        }
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const portalType = urlParams.get('portal');
+        const accessToken = urlParams.get('access_token');
+        const refreshToken = urlParams.get('refresh_token');
+        const type = urlParams.get('type');
+
+        console.log('Reset page loaded with params:', { portalType, type, hasAccessToken: !!accessToken });
+
+        // Update back link based on portal type
+        const backLink = document.getElementById('backToPortalLink');
+        if (portalType === 'admin') {
+            backLink.href = '47gwy2ga4a.html';
+            backLink.textContent = '← Back to Admin Portal';
+        } else {
+            backLink.href = '0cj1zfmo29.html';
+            backLink.textContent = '← Back to Student Portal';
+        }
+
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resetPasswordForm').style.display = 'none';
+            document.getElementById('successState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            
+            const errorDiv = document.querySelector('#errorState .message');
+            if (message) {
+                errorDiv.innerHTML = `<strong>Error</strong><br>${message}`;
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resetPasswordForm').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('successState').style.display = 'block';
+        }
+
+        function showResetForm() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('successState').style.display = 'none';
+            document.getElementById('resetPasswordForm').style.display = 'block';
+        }
+
+        function showMessage(message, isError = false) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="message ${isError ? 'error' : 'success'}">${message}</div>`;
+        }
+
+        // Initialize password reset flow
+        async function initializeReset() {
+            if (!supabase) {
+                showError('Reset system not available. Please try again later.');
+                return;
+            }
+
+            try {
+                // Check if we have the required parameters from the email link
+                if (!accessToken || !refreshToken || type !== 'recovery') {
+                    console.error('Missing required parameters:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
+                    showError('Invalid reset link. Please request a new password reset.');
+                    return;
+                }
+
+                // Set the session with the tokens from the URL
+                const { data, error } = await supabase.auth.setSession({
+                    access_token: accessToken,
+                    refresh_token: refreshToken
+                });
+
+                if (error) {
+                    console.error('Error setting session:', error);
+                    showError('Invalid or expired reset link. Please request a new password reset.');
+                    return;
+                }
+
+                console.log('Session set successfully:', data);
+                showResetForm();
+
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showError('An error occurred while processing your reset link. Please try again.');
+            }
+        }
+
+        // Handle password reset form submission
+        document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validate passwords
+            if (newPassword.length < 6) {
+                showMessage('Password must be at least 6 characters long.', true);
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showMessage('Passwords do not match.', true);
+                return;
+            }
+
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Updating...';
+            submitButton.disabled = true;
+
+            try {
+                // Update the user's password
+                const { error } = await supabase.auth.updateUser({
+                    password: newPassword
+                });
+
+                if (error) {
+                    throw error;
+                }
+
+                console.log('Password updated successfully');
+                showSuccess();
+
+                // Auto-redirect after 3 seconds
+                setTimeout(() => {
+                    if (portalType === 'admin') {
+                        window.location.href = '47gwy2ga4a.html';
+                    } else {
+                        window.location.href = '0cj1zfmo29.html';
+                    }
+                }, 3000);
+
+            } catch (error) {
+                console.error('Password update error:', error);
+                showMessage('Failed to update password: ' + error.message, true);
+            } finally {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        });
+
+        // Initialize the reset flow when page loads
+        document.addEventListener('DOMContentLoaded', initializeReset);
+    </script>
+</body>
+</html>
